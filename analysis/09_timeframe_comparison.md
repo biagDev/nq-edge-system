@@ -51,8 +51,27 @@ losses, and PF is lower despite the surface-attractive 86%. This is a
 classic case of "win rate ≠ edge" — the right metric is PF/expectancy, not
 hit rate.
 
-**1m is uninformative** because TV's 1m history for NQ is only ~2 weeks. We
-got 5 trades, all winners, which means absolutely nothing statistically.
+**1m is uninformative — but the reason is worse than I first reported.** I
+initially wrote "TV's 1m history is ~2 weeks." After verification via
+`data_get_ohlcv`, the actual loaded 1m range on this account/symbol is
+**~9 hours** (`1777313520..1777345380`, one overnight session). When I
+asked TV to extend the visible range back to early 2025 via
+`chart_set_visible_range`, the `actual` returned range was unchanged —
+TV is not serving deeper 1m bars for `CME_MINI:NQ1!` on this subscription.
+
+Whether this is a per-account cap, a futures-specific limit, or a CDP/MCP
+constraint, the practical effect is the same: 1m cannot be backtested in
+this session. With a deeper data source (TV Premium, or paid vendor like
+Polygon / Databento) the 1m comparison could be redone.
+
+For reference, here's what TV actually had loaded at each timeframe in this
+session:
+
+| Timeframe | Loaded depth (in this session) |
+|---|---|
+| 15m | ~11 months (sufficient for 93 trades) |
+| 5m  | ~6 months (sufficient for 36 trades) |
+| 1m  | **~9 hours** (1 session — useless for backtesting) |
 
 ## Verdict
 
