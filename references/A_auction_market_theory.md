@@ -1,0 +1,16 @@
+# A. Auction Market Theory / Market Profile (Steidlmayer, Dalton)
+
+## Summary
+Auction Market Theory (AMT) was developed by J. Peter Steidlmayer at the CBOT in the 1980s and popularized in trading practice by James F. Dalton (Mind Over Markets, 1990; updated 2013). It frames every market session as a two-way auction whose purpose is "price discovery via facilitation of trade." The session organizes itself into a Market Profile (a TPO histogram of time-at-price), from which three working concepts dominate practitioner usage: the Value Area (the price band containing ~70% of the day's TPOs / volume — i.e., one standard deviation around the Point of Control), the Point of Control (POC, the most-time / most-volume price), and the Initial Balance (the range of the first hour, representing the "responsive" local-trader range). Days are then classified as rotational/balance days (price oscillates inside the IB or value area, extremes get retested — exactly the regime in which D1, D2, B1 retest edges live) or trend days (price extends one-sidedly, IB is broken decisively and not retested). Dalton's six day types (Normal, Normal Variation, Trend, Double-Distribution Trend, Neutral, Neutral-Extreme) formalize this into actionable taxonomies: in particular, on a Normal/Normal-Variation day the IB extreme retests roughly 70-80% of the time, which lines up directly with B1 (90.5%), D1 (77.5%), and D2 (91%).
+
+## What's evidence vs marketing
+- **Evidence-grade**: The taxonomy itself (IB, value area, day-type classification) is empirically descriptive — the original CBOT TPO data and decades of practitioner replication confirm that ~70% of days are rotational and that on those days the IB extremes act as magnets/retest targets. This is the specific intuition our retest edges lean on.
+- **Softer**: Specific "value area rules" (e.g., "80% rule" — if price re-enters the value area from above and trades back through the prior POC, it has an 80% chance of traversing to the opposite VA boundary) are widely repeated but rarely re-derived from clean datasets; treat as a useful prior, not a verified statistic.
+- **Marketing fluff**: A lot of for-profit "Market Profile" coaching dresses these concepts up as proprietary. The underlying framework is public and Dalton's books are the primary source — secondary commentary is largely redundant.
+
+## Sources
+- Dalton, James F., Jones, Eric T., Dalton, Robert B. — *Mind Over Markets: Power Trading with Market Generated Information*, Updated Edition, Wiley, 2013. Especially Ch. 3 (Initial Balance), Ch. 4 (Day Types — six day-type taxonomy), Ch. 5 (Other Time Frame / Responsive vs Initiative). https://www.amazon.com/Mind-Over-Markets-Generated-Information/dp/1118531736
+- Steidlmayer, J. P. & Hawkins, S. — *Steidlmayer on Markets*, Wiley (foundational text on the TPO chart and value area derivation).
+- TopStep — "Intro to auction market theory and market profile". https://www.topstep.com/blog/intro-to-auction-market-theory-and-market-profile/
+- TradingRiot — "Auction Market Theory". https://tradingriot.com/auction-market-theory/
+- Time-Price-Research blog — "Six Types of Market Days: Mind Over Markets" (clean summary of Dalton's day taxonomy). https://time-price-research-astrofin.blogspot.com/2023/03/six-types-of-market-days-mind-over.html
