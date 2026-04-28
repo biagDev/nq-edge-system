@@ -11,25 +11,40 @@ source path and commit SHA.
 
 ## Headline result
 
-**The system as specified is not live-deployable.** Across 21 years of NQ=F
-daily bars (2005–2026), the spec'd two-strategy stack (NR7 + Top-Q) produces:
+The project produced two outcomes:
 
-- 1,299 trades, win rate 42.7%, **expectancy −0.18R, profit factor 0.58**
-- CAGR −8.2%, max drawdown −84%
-- 0 of 36 sensitivity-sweep parameter combinations clear PF ≥ 1.1
-- IS/OOS expectancy drift −0.002R (the negative result is *robust*, not a
-  regime artifact)
-- Marginally outperforms random-entry benchmark; underperforms buy-and-hold
+**1. Daily NR7 strategy (Python backtest, 21 years NQ=F):** Negative result.
+PF 0.58, expectancy −0.18R, 0/36 sensitivity-grid combos clear PF ≥ 1.1.
+The source's daily NR7 stat doesn't translate to a tradeable stop-and-target
+strategy. Robust IS/OOS, not parameter-rescuable.
+Details: [`analysis/06_backtest_results.md`](analysis/06_backtest_results.md),
+[`analysis/00_final_report.md`](analysis/00_final_report.md).
 
-**The diagnostic underneath is the real deliverable**: the NR7 signal *is*
-real (+0.017R per trade with no fixed target, exit at close) but too small
-to overcome friction at the daily timeframe. The strongest *framework-fit*
-edge in the source repo — **D4 (9:30 candle color predicts retest side, +50pp
-lift, n≈115/color)** — lives at 15m granularity and was not backtestable
-because the source repo doesn't persist 15m bars. That's the highest-priority
-next research step.
+**2. Intraday 9:30 Color Breakout (TradingView Pine, 17 iterations):** Strong
+edge. On `CME_MINI:NQ1!` 15-minute, ~11 months available history:
 
-Full report: [`analysis/00_final_report.md`](analysis/00_final_report.md).
+| Metric | Value |
+|---|---|
+| **Profit factor** | **2.757** |
+| **Win rate** | **67.74%** (63W / 30L) |
+| **Max drawdown** | **0.69%** ($7,125 of $1M) |
+| Total trades | 93 |
+| Total P&L (1 contract on $1M) | +$23,186 (+2.32%) |
+| Avg win / avg loss | +0.11% / −0.09% |
+
+Final tuned parameters:
+- Target = 0.33 × 9:30 range past entry trigger
+- Cancel pending entry after 2 × 15m bars from 9:30
+- Trade only when 9:30 range is between 0.20× and 0.50× of prior-day ATR(20)
+- Long on green 9:30, short on red 9:30, EOD flat
+
+Code: [`pine/nq_edge_final.pine`](pine/nq_edge_final.pine).
+Iteration log: [`analysis/08_tradingview_iteration_results.md`](analysis/08_tradingview_iteration_results.md).
+
+The intraday operationalization vindicates the Phase-3/4 framework analysis,
+which had identified D4 + C1 + D2 (the 9:30 retest mechanism, +50pp lift over
+the opposite-color base rate) as the highest-leverage edge in the source repo
+— precisely because it was the one Python could not test without 15m bars.
 
 ## Source pin
 

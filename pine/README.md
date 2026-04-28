@@ -1,50 +1,98 @@
 # Pine strategies
 
-Two TradingView strategies derived from the project's edge research, written
-in Pine Script v6.
+TradingView strategies derived from the project's edge research, written in
+Pine Script v6 and tuned in TradingView's Strategy Tester.
 
-| File | Timeframe | Source signal | Status |
-|---|---|---|---|
-| [`nq_edge_intraday.pine`](nq_edge_intraday.pine) | 15m | D4 + C1 + D2 (9:30 color → retest → followthrough) | **Carry-forward primary** — best framework fit, strongest empirical lift (+50pp), unbacktested in Python (no 15m bars) |
-| [`nq_edge_daily.pine`](nq_edge_daily.pine) | 1D | E1c (NR7 → next-day expansion) | Backtested in Python — fails after friction; included to mirror the Phase-5 spec |
+## Headline result
+
+**`nq_edge_final.pine`** — the carry-forward intraday strategy from the
+Phase-3/4 framework analysis, tuned through 17 iterations in TV. On
+`CME_MINI:NQ1!` 15-minute chart over ~11 months of available history:
+
+| Metric | Value |
+|---|---|
+| **Profit factor** | **2.757** |
+| **Win rate** | **67.74%** (63W / 30L) |
+| **Max drawdown** | **0.69%** ($7,125) |
+| Total trades | 93 |
+| Total P&L (1 contract on $1M) | +$23,186 (+2.32%) |
+| Avg win / avg loss | +0.11% / −0.09% |
+
+Full iteration log: [`analysis/08_tradingview_iteration_results.md`](../analysis/08_tradingview_iteration_results.md).
+
+## Files
+
+| File | Timeframe | Status |
+|---|---|---|
+| [`nq_edge_final.pine`](nq_edge_final.pine) | 15m | **Production candidate** — tuned in TV (PF 2.757) |
+| [`nq_edge_intraday.pine`](nq_edge_intraday.pine) | 15m | Same as `final` — kept under both names |
+| [`nq_edge_daily.pine`](nq_edge_daily.pine) | 1D | NR7 daily breakout — Python backtest showed no edge after friction (kept for completeness) |
 
 ## How to run in TradingView
 
-1. Open `CME_MINI:NQ1!` (or any NQ continuous front-month) on the chart.
-2. Set the chart timeframe to **15m** for the intraday strategy, **1D** for the
-   daily one.
-3. Open Pine Editor, paste the file's contents, click "Save", then "Add to chart".
-4. Open the Strategy Tester pane to see metrics.
+1. Open `CME_MINI:NQ1!` (or any NQ continuous front-month).
+2. Set chart timeframe to **15m**.
+3. Pine Editor → paste `nq_edge_final.pine` → Save → Add to chart.
+4. Strategy Tester pane populates with metrics.
 
-## Inputs cheat-sheet
+The defaults are the tuned-best parameters. Inputs are exposed for further
+A/B testing — see the iteration log for what's already been tried.
 
-### `nq_edge_intraday.pine`
-- **Wide-body 9:30 only** — restrict to candles where body ≥ 50% of range
-  (highest-conviction sub-bucket per source's C1 wide-body table).
-- **Target multiple** — 1.5 default. Try 1.0–2.0; the Python sensitivity sweep
-  hit local maxima around 1.0 for daily, but the intraday move past the
-  trigger is meaningfully larger.
-- **Max bars after 9:30** — entry-window length. 4 = 1 hour. Past 4 bars the
-  D2 retest probability has plateaued (91% within first bar already).
+## Inputs
 
-### `nq_edge_daily.pine`
-- **Use 1.68× target** — toggle off to exit at session close (the variant the
-  Python diagnostic found marginally positive; PF 0.99 vs 0.96 with target).
-- **200 SMA regime filter** — toggle on to only take longs above 200-day
-  and shorts below. Per source's E2 the NR7 signal is regime-stable so this
-  is informational, not edge-adding.
+| Input | Default | What it does |
+|---|---|---|
+| Target × 9:30 range past entry | **0.33** | Take profit at trigger + 0.33 × (9:30 H − 9:30 L). Tighter target = higher win rate, smaller wins. |
+| Cancel pending entry after N 15m bars | **2** | If price hasn't broken the 9:30 H or L within 2 × 15min, cancel. Per source's D2: 91% of retests happen in the first bar. |
+| Min 9:30 range / prior-day ATR(20) | **0.20** | Skip the trade if 9:30 candle is too narrow relative to the day's expected vol — there's no edge if the move is too small to overcome friction. |
+| Max 9:30 range / prior-day ATR(20) | **0.50** | Skip the trade if 9:30 candle is unusually wide — likely a news / event day where the directional read is noisy. |
 
-## Why these and not the others
+## Source signal
 
-The shortlist had 10 BH-significant edges (see
-[`analysis/02_edge_ranking.md`](../analysis/02_edge_ranking.md)). We coded:
+The strategy is the carry-forward from the project's Phase-3/4 framework
+analysis. It implements the strongest empirically-significant edge in the
+source data:
 
-1. **NR7** because Python could backtest it with public daily data and we
-   wanted a baseline for honesty (it failed → see [final report](../analysis/00_final_report.md)).
-2. **9:30 color breakout** because Phase-3 framework research identified it
-   as the highest-leverage edge under Auction Market Theory + Mark Fisher
-   ACD frameworks, and the Python work could not test it without 15m bars.
+- **D4** (`extended-stats/04-conditional-on-color`): green 9:30 candle →
+  74% probability the high is retested first; red 9:30 → 74% low retest first.
+  Lift over the opposite-color base rate is +50 percentage points (n=230,
+  BH-significant at q=0.10).
+- **C1** (`930-followthrough`): when the predicted side does retest, the
+  day closes in the predicted direction 72-80% of the time.
+- **D2** (`extended-stats/02-time-to-retest`): 91% of retests happen within
+  the first 15-minute bar after 9:30 closes — supporting the tight
+  `maxBars=2` window.
 
-The other shortlist edges (B1 1h-candle retest, D1 PDH/PDL retest, E1d gap
-fills, etc.) are specified in [`analysis/04_edge_to_framework_mapping.md`](../analysis/04_edge_to_framework_mapping.md)
-and can be coded as additional strategies when time permits.
+## Key tuning lessons
+
+1. **Tighter target wins.** The source's "78% close-green" stat describes
+   the day's *direction*, not the *excursion past the trigger*. Most
+   profitable trades resolve quickly with small ATR-relative moves. Target
+   0.33× the 9:30 range nailed this (PF 1.897 vs 1.337 at 1.5×).
+2. **ATR-relative range filter is the biggest single improvement.** Going
+   from no filter to (0.20 ≤ 9:30 range / ATR ≤ 0.50) lifted PF from
+   1.897 → 2.757. It removes both "no edge — too quiet" and "event day —
+   directional read is noisy" failure modes.
+3. **200 EMA filter actively hurts.** Forcing trade direction with the
+   higher-timeframe trend dropped PF (1.416 → 1.154). The 9:30 retest edge
+   is regime-stable; constraining direction kills half the trades.
+4. **Wide-body filter over-restricts.** The Python work hypothesized that
+   wide-body 9:30 candles (the source's strongest sub-bucket) would amplify
+   the edge. In practice the filter cut trade count by 80% and dropped
+   PF (1.337 → 1.219).
+
+## Pre-live checklist (still open)
+
+The TV strategy tester gives in-sample results on the data window TV serves
+on 15m (~11 months). Before live deployment:
+
+- [ ] **Out-of-sample test** with deeper data (Polygon / Databento / IQFeed)
+- [ ] Walk-forward analysis (rolling 6-month train / 1-month test)
+- [ ] Deflated Sharpe Ratio with N_trials = 17 (the iteration count)
+- [ ] 60-session paper trade with full execution discipline
+- [ ] Verify live results within 25% of backtest expectancy
+- [ ] Kill-switch tested
+
+See [`analysis/00_final_report.md`](../analysis/00_final_report.md) and
+[`analysis/08_tradingview_iteration_results.md`](../analysis/08_tradingview_iteration_results.md)
+for the full pre-live checklist and recommended next research.
