@@ -38,6 +38,22 @@ Full iteration log: [`analysis/08_tradingview_iteration_results.md`](../analysis
 The defaults are the tuned-best parameters. Inputs are exposed for further
 A/B testing — see the iteration log for what's already been tried.
 
+## Why 15m and not lower timeframes?
+
+We tested the same setup logic with 5m and 1m execution
+([`analysis/09_timeframe_comparison.md`](../analysis/09_timeframe_comparison.md)):
+
+| Timeframe | PF | Win rate | Trades |
+|---|---|---|---|
+| **15m** | **2.757** | 67.7% | **93** |
+| 5m | 2.387 | 86.1% | 36 |
+| 1m | n/a | 100% | 5 (insufficient sample) |
+
+**15m wins on PF, sample size, and available TV history.** The 5m's higher
+win rate (86%) is offset by 4.7× larger avg losses — fast bars don't give
+the strategy room to buffer weak triggers. Setup-and-execution at the
+setup's natural granularity is the right call.
+
 ## Inputs
 
 | Input | Default | What it does |
