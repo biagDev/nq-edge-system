@@ -1,0 +1,43 @@
+//@version=5
+indicator("04 Conditional Color", overlay=true)
+
+h = hour(time, "America/New_York")
+m = minute(time, "America/New_York")
+
+isOpenBar = h == 9 and m == 30
+isBar945 = h == 9 and m == 45
+isBar1000 = h == 10 and m == 0
+
+var float oh = na
+var float ol = na
+var bool wasGreen = false
+var bool wasRed = false
+var bool hi1000 = false
+var bool lo1000 = false
+var bool hi1015 = false
+var bool lo1015 = false
+
+if isOpenBar
+    oh := high
+    ol := low
+    wasGreen := close > open
+    wasRed := close < open
+    hi1000 := false
+    lo1000 := false
+    hi1015 := false
+    lo1015 := false
+
+if isBar945 and not na(oh)
+    if high >= oh
+        hi1000 := true
+        hi1015 := true
+    if low <= ol
+        lo1000 := true
+        lo1015 := true
+
+if isBar1000 and not na(oh)
+    if high >= oh
+        hi1015 := true
+    if low <= ol
+        lo1015 := true
+    // Tally per green/red here (full counter logic in original; results saved in data/results.json)

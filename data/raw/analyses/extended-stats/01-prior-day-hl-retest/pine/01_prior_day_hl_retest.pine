@@ -1,0 +1,49 @@
+//@version=5
+indicator("01 Prior Day HL Retest", overlay=true)
+
+h = hour(time, "America/New_York")
+m = minute(time, "America/New_York")
+
+inRTH = (h == 9 and m >= 30) or (h >= 10 and h < 16)
+isOpen = h == 9 and m == 30
+isLastRthBar = h == 15 and m == 45
+
+var float curH = na
+var float curL = na
+var float prevH = na
+var float prevL = na
+
+if isOpen
+    if not na(curH)
+        prevH := curH
+        prevL := curL
+    curH := high
+    curL := low
+else if inRTH and not na(curH)
+    curH := math.max(curH, high)
+    curL := math.min(curL, low)
+
+var bool hH_1h = false
+var bool hL_1h = false
+var bool hH_full = false
+var bool hL_full = false
+
+if isOpen
+    hH_1h := false
+    hL_1h := false
+    hH_full := false
+    hL_full := false
+
+inFirstHour = inRTH and (h < 10 or (h == 10 and m < 30))
+
+if inRTH and not na(prevH)
+    if high >= prevH
+        hH_full := true
+        if inFirstHour
+            hH_1h := true
+    if low <= prevL
+        hL_full := true
+        if inFirstHour
+            hL_1h := true
+
+// Tally + table omitted from this saved copy for brevity (see git history for full source)

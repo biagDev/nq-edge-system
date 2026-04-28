@@ -1,0 +1,9 @@
+metric,by_10_00_count,by_10_00_pct,by_10_15_count,by_10_15_pct
+total_days,232,100.00,232,100.00
+either_side,209,90.09,225,96.98
+both_sides,14,6.03,37,15.95
+high_only,102,43.97,99,42.67
+low_only,93,40.09,89,38.36
+neither,23,9.91,7,3.02
+high_any,116,50.00,136,58.62
+low_any,107,46.12,126,54.31

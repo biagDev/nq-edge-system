@@ -1,0 +1,39 @@
+{
+  "theme": "Daily Patterns Vol.2 — combined signals + 200MA regime filter on Vol.1 stats",
+  "symbol": "CME_MINI:NQ1!",
+  "timeframe": "Daily",
+  "sample_size_days": "approx 6700 (~27 years)",
+  "as_of_date": "2026-04-26",
+  "builds_on": "analyses/daily-patterns-v1",
+
+  "combined_streak_quartile": {
+    "description": "After 3+ same-color days, condition on yesterday's close position within yesterday's range. Tests whether candle structure adds signal on top of the streak.",
+    "p_green_next_day_after": [
+      { "condition": "3+ green AND top-Q close", "n": 678, "p_green_pct": 56.34, "vol1_3plus_green_baseline": 56.30, "edge_added": 0.04 },
+      { "condition": "3+ green AND bot-Q close", "n": 12,  "p_green_pct": 50.00, "warning": "tiny sample" },
+      { "condition": "3+ red AND top-Q close",   "n": 11,  "p_green_pct": 54.55, "warning": "tiny sample" },
+      { "condition": "3+ red AND bot-Q close",   "n": 345, "p_green_pct": 58.26, "vol1_3plus_red_baseline": 55.80, "edge_added": 2.46 }
+    ],
+    "verdict": "Combining streak + close-quartile adds essentially nothing on top of the streak alone. The +2.46pp uplift on the bear side is the only meaningful signal, and even it is modest. The streak signal already captures most of what the quartile-close signal would add."
+  },
+
+  "vol1_stats_split_by_200ma_regime": {
+    "description": "Each Vol.1 stat re-run separately for days when yesterday's close was above the 200-day SMA vs below. Tests whether the patterns are regime-dependent.",
+    "stats": [
+      { "stat": "After 3+ green: P(green next)",     "n_above": 887,  "pct_above": 57.16, "n_below": 177,  "pct_below": 49.15, "delta_above_minus_below": 8.01,  "interpretation": "Bull-streak continuation is real ABOVE 200MA, near coin flip below." },
+      { "stat": "After 3+ red: P(green next)",       "n_above": 337,  "pct_above": 56.97, "n_below": 285,  "pct_below": 54.39, "delta_above_minus_below": 2.59,  "interpretation": "Bounce-after-bear-streak works in both regimes — robust." },
+      { "stat": "Top-quartile close: P(higher high)","n_above": 1808, "pct_above": 85.90, "n_below": 536,  "pct_below": 83.77, "delta_above_minus_below": 2.13,  "interpretation": "Robust across regimes." },
+      { "stat": "NR7: P(expansion)",                 "n_above": 716,  "pct_above": 84.36, "n_below": 298,  "pct_below": 81.88, "delta_above_minus_below": 2.48,  "interpretation": "Robust across regimes." },
+      { "stat": "Med gap (25-100): P(fill)",         "n_above": 148,  "pct_above": 70.95, "n_below": 85,   "pct_below": 69.41, "delta_above_minus_below": 1.53,  "interpretation": "Robust." },
+      { "stat": "Top10% of 20-day: P(grn next)",     "n_above": 1411, "pct_above": 56.34, "n_below": 162,  "pct_below": 49.38, "delta_above_minus_below": 6.96,  "interpretation": "Continuation only works ABOVE 200MA. Below MA, near coin flip." },
+      { "stat": "Bot10% of 20-day: P(grn next)",     "n_above": 180,  "pct_above": 60.56, "n_below": 332,  "pct_below": 53.01, "delta_above_minus_below": 7.54,  "interpretation": "Bounce works in both regimes but stronger above MA." }
+    ]
+  },
+
+  "key_findings": {
+    "1": "200MA regime is the most important filter we've found. Above MA, NQ shows clear directional drift on streak / range-position stats. Below MA, those signals collapse to coin-flip.",
+    "2": "Range-extension stats (NR7 expansion, top-Q higher-high) are REGIME-INDEPENDENT — robust at ~84-86% in both bull and bear markets.",
+    "3": "Combined signals (streak + close-quartile) don't materially add edge. The streak alone captures the same information.",
+    "4": "Sample sizes for 'below 200MA' are 5x smaller than 'above MA' because NQ spent most of 27 years in uptrend. Below-MA stats have wider confidence intervals."
+  }
+}

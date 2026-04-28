@@ -1,0 +1,8 @@
+stat,n_above_200ma,pct_above,n_below_200ma,pct_below,delta_above_minus_below
+after_3plus_green_p_green_next,887,57.16,177,49.15,+8.01
+after_3plus_red_p_green_next,337,56.97,285,54.39,+2.59
+top_quartile_close_p_higher_high,1808,85.90,536,83.77,+2.13
+nr7_p_expansion,716,84.36,298,81.88,+2.48
+med_gap_25_100_p_fill,148,70.95,85,69.41,+1.53
+top10_of_20day_p_green_next,1411,56.34,162,49.38,+6.96
+bot10_of_20day_p_green_next,180,60.56,332,53.01,+7.54

@@ -1,0 +1,59 @@
+//@version=5
+// Daily Patterns Vol. 1 — five starter stats on NQ daily candles.
+// See ../data/results.json for full structured results and ../README.md for analysis.
+
+indicator("Daily Patterns Vol1", overlay=true)
+
+isGreen = close > open
+isRed   = close < open
+
+// Stat 1: streak conditioning (exact streak length ending YESTERDAY)
+g1 = close[1] > open[1]
+g2 = g1 and close[2] > open[2]
+g3 = g2 and close[3] > open[3]
+g4 = g3 and close[4] > open[4]
+g5 = g4 and close[5] > open[5]
+
+sg1 = g1 and not g2
+sg2 = g2 and not g3
+sg3 = g3 and not g4
+sg4 = g4 and not g5
+sg5plus = g5
+
+r1 = close[1] < open[1]
+r2 = r1 and close[2] < open[2]
+r3 = r2 and close[3] < open[3]
+r4 = r3 and close[4] < open[4]
+r5 = r4 and close[5] < open[5]
+
+sr1 = r1 and not r2
+sr2 = r2 and not r3
+sr3 = r3 and not r4
+sr4 = r4 and not r5
+sr5plus = r5
+
+// Stat 2: close-quartile follow-through (yesterday's quartile -> today)
+rng = high - low
+pct_close_in_rng = rng > 0 ? (close - low) / rng : 0.5
+top_q = pct_close_in_rng >= 0.75
+bot_q = pct_close_in_rng <= 0.25
+
+// Stat 3: NR7 expansion (yesterday NR7 -> today)
+isNR7 = rng == ta.lowest(rng, 7) and bar_index >= 7
+
+// Stat 4: gap fill (gap on this bar's open)
+gap = open - close[1]
+abs_gap = math.abs(gap)
+gap_filled = gap > 0 ? low <= close[1] : (gap < 0 ? high >= close[1] : true)
+
+// Stat 5: range-position fade (yesterday in top/bot 10% of 20-day -> today)
+hi20 = ta.highest(high, 20)
+lo20 = ta.lowest(low, 20)
+rng20 = hi20 - lo20
+pct_in_20 = rng20 > 0 ? (close - lo20) / rng20 : 0.5
+in_top10 = pct_in_20 >= 0.9 and bar_index >= 20
+in_bot10 = pct_in_20 <= 0.1 and bar_index >= 20
+
+// Counters omitted from this saved copy for brevity. Output schema and full
+// counter logic are recoverable from data/results.json. The chart-side script
+// produced 3 tables (streak / shape / gap+range) read via data_get_pine_tables.

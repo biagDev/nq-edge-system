@@ -1,0 +1,8 @@
+bucket,n,filled,filled_pct
+gap_up_any_size,2919,2715,93.01
+gap_down_any_size,3252,3066,94.28
+abs_gap_lt_25,5884,5593,95.05
+abs_gap_25_50,176,119,67.61
+abs_gap_50_100,77,52,67.53
+abs_gap_100_200,17,8,47.06
+abs_gap_200_plus,17,9,52.94

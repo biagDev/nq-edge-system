@@ -1,0 +1,52 @@
+//@version=5
+indicator("06 Midpoint Mean Reversion", overlay=true)
+
+h = hour(time, "America/New_York")
+m = minute(time, "America/New_York")
+
+isOpenBar = h == 9 and m == 30
+isAfter = (h == 9 and m == 45) or (h == 10) or (h == 11) or (h == 12) or (h == 13) or (h == 14) or (h == 15)
+
+var float oh = na
+var float ol = na
+var float omid = na
+var bool hitMid_10 = false
+var bool hitMid_11 = false
+var bool hitMid_eod = false
+
+if isOpenBar
+    oh := high
+    ol := low
+    omid := (high + low) / 2.0
+    hitMid_10 := false
+    hitMid_11 := false
+    hitMid_eod := false
+
+postRTH = isAfter and not na(oh) and not isOpenBar
+
+before10 = (h == 9 and m == 45) or (h == 10 and m == 0)
+before11 = before10 or (h == 10 and (m == 15 or m == 30 or m == 45))
+
+if postRTH
+    crossed = (high >= omid) and (low <= omid)
+    if crossed
+        hitMid_eod := true
+        if before10
+            hitMid_10 := true
+        if before11
+            hitMid_11 := true
+
+var int totalDays = 0
+var int n_mid_10 = 0
+var int n_mid_11 = 0
+var int n_mid_eod = 0
+
+isLastRthBar = h == 15 and m == 45
+if isLastRthBar and not na(oh)
+    totalDays += 1
+    if hitMid_10
+        n_mid_10 += 1
+    if hitMid_11
+        n_mid_11 += 1
+    if hitMid_eod
+        n_mid_eod += 1

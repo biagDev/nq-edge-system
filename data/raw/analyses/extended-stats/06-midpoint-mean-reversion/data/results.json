@@ -1,0 +1,15 @@
+{
+  "theme": "Mean reversion to the midpoint of the 9:30 candle",
+  "symbol": "CME_MINI:NQ1!",
+  "method": "Subject = 9:30-9:45 candle. Midpoint = (H + L) / 2. Track whether subsequent 15m bars' ranges straddle that midpoint within three windows.",
+  "sample_size_days": 223,
+  "as_of_date": "2026-04-26",
+
+  "results": {
+    "midpoint_touched_by_10_15": { "days": 144, "pct": 64.57 },
+    "midpoint_touched_by_11_00": { "days": 159, "pct": 71.30 },
+    "midpoint_touched_by_eod":   { "days": 176, "pct": 78.92 }
+  },
+
+  "key_finding": "About 65% of days mean-revert to the 9:30 midpoint within 30 min. By RTH close, 79% of days touch the midpoint. ~21% of days never return to the opening candle's center — those are the 'expand and never look back' days where the open's directional read holds."
+}

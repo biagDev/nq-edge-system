@@ -1,0 +1,81 @@
+{
+  "theme": "Daily Patterns Vol. 1 — five starter stats on NQ daily candles",
+  "symbol": "CME_MINI:NQ1!",
+  "timeframe": "Daily",
+  "method": "Pine indicator running on NQ1! daily chart with full available history (~27 years).",
+  "sample_size_days_approx": 6700,
+  "as_of_date": "2026-04-26",
+  "data_source_caveats": "NQ1! continuous front-month — quarterly contract rolls (~4/year) introduce small artificial gaps that may inflate the 'gap < 25 pts' bucket counts. Pre-2001 era is electronic-trading-only with thinner liquidity. Daily session anchoring per TradingView default for the futures continuous contract.",
+
+  "stat_1_streak_continuation": {
+    "description": "P(next-day color | last N consecutive same-color days). Streaks counted exactly — after-3-green means streak length is exactly 3 (4th day prior was not green).",
+    "after_green_streaks": [
+      { "streak_length": 1,    "n": 1690, "p_reverse_to_red_pct": 46.92, "p_continue_green_pct": 53.08 },
+      { "streak_length": 2,    "n": 888,  "p_reverse_to_red_pct": 44.59, "p_continue_green_pct": 55.41 },
+      { "streak_length": 3,    "n": 488,  "p_reverse_to_red_pct": 46.31, "p_continue_green_pct": 53.69 },
+      { "streak_length": 4,    "n": 259,  "p_reverse_to_red_pct": 40.15, "p_continue_green_pct": 59.85 },
+      { "streak_length": "5+", "n": 351,  "p_reverse_to_red_pct": 42.74, "p_continue_green_pct": 57.26 }
+    ],
+    "after_red_streaks": [
+      { "streak_length": 1,    "n": 1681, "p_reverse_to_green_pct": 54.49, "p_continue_red_pct": 45.51 },
+      { "streak_length": 2,    "n": 755,  "p_reverse_to_green_pct": 52.45, "p_continue_red_pct": 47.55 },
+      { "streak_length": 3,    "n": 358,  "p_reverse_to_green_pct": 56.15, "p_continue_red_pct": 43.85 },
+      { "streak_length": 4,    "n": 153,  "p_reverse_to_green_pct": 53.59, "p_continue_red_pct": 46.41 },
+      { "streak_length": "5+", "n": 122,  "p_reverse_to_green_pct": 57.38, "p_continue_red_pct": 42.62 }
+    ]
+  },
+
+  "stat_2_close_quartile_followthrough": {
+    "description": "Conditioning on yesterday's close position within yesterday's range; measure next-day outcomes.",
+    "after_top_quartile_close": {
+      "n": 2419,
+      "higher_high_next_day_pct": 85.61,
+      "green_next_day_pct": 53.82
+    },
+    "after_bot_quartile_close": {
+      "n": 1598,
+      "lower_low_next_day_pct": 82.48,
+      "red_next_day_pct": 45.06
+    }
+  },
+
+  "stat_3_nr7_expansion": {
+    "description": "NR7 = today's range is the smallest of the last 7 days. Measure next-day expansion and direction.",
+    "n": 1044,
+    "next_day_expanded_pct": 83.52,
+    "average_range_ratio_next_to_nr7": 1.68,
+    "next_day_green_pct": 55.94,
+    "next_day_red_pct": 43.39
+  },
+
+  "stat_4_gap_fill": {
+    "description": "Gap = today's open - yesterday's close. Filled = today's price returns to yesterday's close (low <= prevClose for gap-up; high >= prevClose for gap-down).",
+    "by_direction": {
+      "gap_up_any_size":   { "n": 2919, "filled": 2715, "filled_pct": 93.01 },
+      "gap_down_any_size": { "n": 3252, "filled": 3066, "filled_pct": 94.28 }
+    },
+    "by_size": [
+      { "bucket": "< 25 pts",       "n": 5884, "filled": 5593, "filled_pct": 95.05, "note": "Likely inflated by quarterly contract roll micro-gaps" },
+      { "bucket": "25-50 pts",      "n": 176,  "filled": 119,  "filled_pct": 67.61 },
+      { "bucket": "50-100 pts",     "n": 77,   "filled": 52,   "filled_pct": 67.53 },
+      { "bucket": "100-200 pts",    "n": 17,   "filled": 8,    "filled_pct": 47.06, "warning": "small sample, wide CI" },
+      { "bucket": "200+ pts",       "n": 17,   "filled": 9,    "filled_pct": 52.94, "warning": "small sample, wide CI" }
+    ]
+  },
+
+  "stat_5_range_position": {
+    "description": "Yesterday's close as % of last-20-day range. Measure next-day reversal rates.",
+    "after_top_10pct_of_20day_range": {
+      "n": 1632,
+      "next_day_red_pct": 43.69,
+      "next_day_green_pct": 56.31,
+      "reading": "NOT mean-reverting — slight continuation bias"
+    },
+    "after_bot_10pct_of_20day_range": {
+      "n": 517,
+      "next_day_green_pct": 55.51,
+      "next_day_red_pct": 44.49,
+      "reading": "Slight bounce edge, statistically meaningful"
+    }
+  }
+}

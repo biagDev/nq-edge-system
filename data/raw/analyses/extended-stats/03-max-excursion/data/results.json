@@ -1,0 +1,26 @@
+{
+  "theme": "Max excursion before first retest of the 9:30 candle",
+  "symbol": "CME_MINI:NQ1!",
+  "method": "Subject = 9:30-9:45 candle. After it closes, track how far price travels above its high or below its low BEFORE the first wick-back to either extreme. Express as % of the opening candle's range. ALL counters committed at 15:45 for denominator consistency.",
+  "sample_size_days": 223,
+  "as_of_date": "2026-04-26",
+  "version": "v2 (corrected denominator bug from v1)",
+  "v1_bug_note": "Original v1 had hitDays incrementing during forward bars while totalDays gated at 15:45, producing 'instant retest' = -9 (totalDays - hitDays). v2 fix: per-day variable captured during forward bars, all counters committed together at 15:45.",
+
+  "buckets": [
+    { "range": "Instant retest (0% excursion)", "days": 0,   "pct": 0.00 },
+    { "range": "0-25% of opening range",        "days": 100, "pct": 44.84 },
+    { "range": "25-50%",                        "days": 62,  "pct": 27.80 },
+    { "range": "50-100%",                       "days": 48,  "pct": 21.52 },
+    { "range": "100-200%",                      "days": 13,  "pct": 5.83 },
+    { "range": "200%+",                         "days": 0,   "pct": 0.00 },
+    { "range": "Never hit by EOD",              "days": 0,   "pct": 0.00 }
+  ],
+
+  "verification": "Sum (0+100+62+48+13+0+0) = 223 = totalDays ✓",
+
+  "summary": {
+    "mean_excursion_pct_of_range": 37.53,
+    "interpretation": "On the typical day, price expands ~37.5% of the opening range past one extreme before pulling back to retest the other side. About 5.8% of days expand more than the full opening range before retracing. No days extend more than 2x the range."
+  }
+}

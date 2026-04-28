@@ -1,0 +1,26 @@
+{
+  "theme": "Prior-day RTH H/L retest rate",
+  "symbol": "CME_MINI:NQ1!",
+  "method": "Track each RTH session's H/L (9:30-16:00 ET). Next day, check whether current RTH retests prior session's H or L within (a) the first hour of RTH, or (b) the full RTH session.",
+  "sample_size_days": 222,
+  "as_of_date": "2026-04-26",
+
+  "first_hour": {
+    "either_side":  { "count": 172, "pct": 77.48 },
+    "both_sides":   { "count": 4,   "pct": 1.80 },
+    "pdh_only":     { "count": 105, "pct": 47.30 },
+    "pdl_only":     { "count": 63,  "pct": 28.38 },
+    "neither":      { "count": 50,  "pct": 22.52 },
+    "pdh_any":      { "count": 109, "pct": 49.10 },
+    "pdl_any":      { "count": 67,  "pct": 30.18 }
+  },
+  "full_rth": {
+    "either_side":  { "count": 204, "pct": 91.89 },
+    "both_sides":   { "count": 25,  "pct": 11.26 },
+    "pdh_only":     { "count": 106, "pct": 47.75 },
+    "pdl_only":     { "count": 73,  "pct": 32.88 },
+    "neither":      { "count": 18,  "pct": 8.11 },
+    "pdh_any":      { "count": 131, "pct": 59.01 },
+    "pdl_any":      { "count": 98,  "pct": 44.14 }
+  }
+}

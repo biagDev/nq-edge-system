@@ -1,0 +1,20 @@
+{
+  "theme": "Which side of the 9:30 candle gets hit FIRST",
+  "symbol": "CME_MINI:NQ1!",
+  "method": "Subject = 9:30-9:45 candle. After it closes, scan forward 15m bars; record which side (H or L) gets wicked first. Both same bar = ambiguous.",
+  "sample_size_days": 223,
+  "as_of_date": "2026-04-26",
+
+  "outcomes": {
+    "high_first":          { "days": 107, "pct": 47.98 },
+    "low_first":           { "days": 104, "pct": 46.64 },
+    "both_same_bar":       { "days": 12,  "pct": 5.38 },
+    "never_hit_by_eod":    { "days": 0,   "pct": 0.00 }
+  },
+  "conditional": {
+    "p_high_first_given_either_hit": 47.98,
+    "p_low_first_given_either_hit":  46.64
+  },
+
+  "key_finding": "First-touch direction is essentially a coin flip — high vs low first is 48/47, almost perfectly balanced. The previously observed 'high-bias' in the cumulative retest stats is thus driven by SECOND-touch dynamics (after a sweep), not by directional asymmetry of the first move."
+}

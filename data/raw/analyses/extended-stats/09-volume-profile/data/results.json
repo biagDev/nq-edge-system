@@ -1,0 +1,26 @@
+{
+  "theme": "Volume profile by 15-minute bucket throughout RTH",
+  "symbol": "CME_MINI:NQ1!",
+  "method": "Average volume per 15m bar at each given open-time, across all RTH sessions in the sample.",
+  "sample_size_days": "232 (some buckets show fewer due to data alignment at the edges)",
+  "as_of_date": "2026-04-26",
+
+  "buckets": [
+    { "open": "9:30",  "avg_volume": 36924, "n": 232, "relative_to_peak_pct": 100 },
+    { "open": "9:45",  "avg_volume": 27003, "n": 232, "relative_to_peak_pct": 73 },
+    { "open": "10:00", "avg_volume": 24572, "n": 232, "relative_to_peak_pct": 67 },
+    { "open": "10:15", "avg_volume": 20526, "n": 232, "relative_to_peak_pct": 56 },
+    { "open": "10:30", "avg_volume": 19302, "n": 232, "relative_to_peak_pct": 52 },
+    { "open": "10:45", "avg_volume": 18334, "n": 232, "relative_to_peak_pct": 50 },
+    { "open": "11:00", "avg_volume": 16685, "n": 232, "relative_to_peak_pct": 45 },
+    { "open": "11:30", "avg_volume": 14794, "n": 232, "relative_to_peak_pct": 40 },
+    { "open": "12:00", "avg_volume": 12318, "n": 232, "relative_to_peak_pct": 33 },
+    { "open": "13:00", "avg_volume": 11203, "n": 226, "relative_to_peak_pct": 30 },
+    { "open": "14:00", "avg_volume": 10789, "n": 223, "relative_to_peak_pct": 29 },
+    { "open": "15:00", "avg_volume": 10614, "n": 223, "relative_to_peak_pct": 29 },
+    { "open": "15:30", "avg_volume": 11526, "n": 223, "relative_to_peak_pct": 31 },
+    { "open": "15:45", "avg_volume": 26457, "n": 223, "relative_to_peak_pct": 72 }
+  ],
+
+  "key_finding": "Classic U-shape with the open dominant. The 9:30 bar is the peak (100%, ~37k contracts/15m). Volume falls steadily through midday, bottoming around 14:00 (~29% of peak). The closing 15-min bar (15:45-16:00) is the second-largest spike at 72% of peak — closing rotation/MOC activity. The 9:30 bar is ~3.5x the average midday bar."
+}

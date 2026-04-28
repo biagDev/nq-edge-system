@@ -1,0 +1,49 @@
+//@version=5
+// Daily Patterns Vol. 2 — combined signals + 200MA regime filter on Vol.1 stats.
+// Run on NQ1! daily chart with full history loaded (~27 years).
+// See data/results.json for full structured results, EASY_READ.md for plain-English version.
+
+indicator("Daily Patterns Vol2", overlay=true, max_labels_count=50)
+
+isGreen = close > open
+isRed   = close < open
+
+// Streaks
+g1 = close[1] > open[1]
+g2 = g1 and close[2] > open[2]
+g3 = g2 and close[3] > open[3]
+r1 = close[1] < open[1]
+r2 = r1 and close[2] < open[2]
+r3 = r2 and close[3] < open[3]
+streak3plus_green = g3
+streak3plus_red   = r3
+
+// Quartile (yesterday)
+rng = high - low
+pct_close = rng > 0 ? (close - low) / rng : 0.5
+top_q_yest = pct_close[1] >= 0.75
+bot_q_yest = pct_close[1] <= 0.25
+
+// NR7 (yesterday)
+isNR7 = rng == ta.lowest(rng, 7) and bar_index >= 7
+nr7_yest = isNR7[1]
+
+// 200MA regime
+sma200 = ta.sma(close, 200)
+above_ma = close[1] > sma200[1] and bar_index >= 200
+below_ma = close[1] < sma200[1] and bar_index >= 200
+
+// Gap
+gap = open - close[1]
+abs_gap = math.abs(gap)
+gap_filled = gap > 0 ? low <= close[1] : (gap < 0 ? high >= close[1] : true)
+
+// 20-day range position (yesterday)
+hi20 = ta.highest(high, 20)
+lo20 = ta.lowest(low, 20)
+rng20 = hi20 - lo20
+pct_in_20 = rng20 > 0 ? (close - lo20) / rng20 : 0.5
+in_top10_yest = pct_in_20[1] >= 0.9 and bar_index >= 21
+in_bot10_yest = pct_in_20[1] <= 0.1 and bar_index >= 21
+
+// Counter / table boilerplate omitted from saved copy. See chart-side script.

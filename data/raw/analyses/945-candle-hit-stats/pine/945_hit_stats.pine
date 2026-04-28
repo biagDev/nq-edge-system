@@ -1,0 +1,298 @@
+//@version=5
+indicator("945 Hit Stats", overlay=true, max_labels_count=500)
+
+h = hour(time, "America/New_York")
+m = minute(time, "America/New_York")
+dow = dayofweek(time, "America/New_York")
+
+// Subject: 9:45-10:00 ET (open time h=9, m=45)
+isOpenBar = h == 9  and m == 45
+// 1st post-candle: 10:00-10:15 (open time h=10, m=0)
+isPost1   = h == 10 and m == 0
+// 2nd post-candle: 10:15-10:30
+isPost2   = h == 10 and m == 15
+// 3rd post-candle: 10:30-10:45 (final tally fires at this bar)
+isPost3   = h == 10 and m == 30
+
+var float openHigh = na
+var float openLow  = na
+var int   openDow  = na
+
+var bool hiHit15 = false
+var bool loHit15 = false
+var bool hiHit30 = false
+var bool loHit30 = false
+var bool hiHit45 = false
+var bool loHit45 = false
+
+var int totalDays = 0
+
+var int either15 = 0
+var int both15 = 0
+var int hiOnly15 = 0
+var int loOnly15 = 0
+var int neither15 = 0
+var int hiAny15 = 0
+var int loAny15 = 0
+
+var int either30 = 0
+var int both30 = 0
+var int hiOnly30 = 0
+var int loOnly30 = 0
+var int neither30 = 0
+var int hiAny30 = 0
+var int loAny30 = 0
+
+var int either45 = 0
+var int both45 = 0
+var int hiOnly45 = 0
+var int loOnly45 = 0
+var int neither45 = 0
+var int hiAny45 = 0
+var int loAny45 = 0
+
+var int[] dD  = array.new_int(8, 0)
+var int[] dE15 = array.new_int(8, 0)
+var int[] dB15 = array.new_int(8, 0)
+var int[] dH15 = array.new_int(8, 0)
+var int[] dL15 = array.new_int(8, 0)
+var int[] dN15 = array.new_int(8, 0)
+var int[] dE30 = array.new_int(8, 0)
+var int[] dB30 = array.new_int(8, 0)
+var int[] dH30 = array.new_int(8, 0)
+var int[] dL30 = array.new_int(8, 0)
+var int[] dN30 = array.new_int(8, 0)
+var int[] dE45 = array.new_int(8, 0)
+var int[] dB45 = array.new_int(8, 0)
+var int[] dH45 = array.new_int(8, 0)
+var int[] dL45 = array.new_int(8, 0)
+var int[] dN45 = array.new_int(8, 0)
+
+if isOpenBar
+    openHigh := high
+    openLow  := low
+    openDow  := dow
+    hiHit15 := false
+    loHit15 := false
+    hiHit30 := false
+    loHit30 := false
+    hiHit45 := false
+    loHit45 := false
+
+if isPost1 and not na(openHigh)
+    if high >= openHigh
+        hiHit15 := true
+        hiHit30 := true
+        hiHit45 := true
+    if low <= openLow
+        loHit15 := true
+        loHit30 := true
+        loHit45 := true
+
+if isPost2 and not na(openHigh)
+    if high >= openHigh
+        hiHit30 := true
+        hiHit45 := true
+    if low <= openLow
+        loHit30 := true
+        loHit45 := true
+
+if isPost3 and not na(openHigh)
+    if high >= openHigh
+        hiHit45 := true
+    if low <= openLow
+        loHit45 := true
+
+    totalDays += 1
+
+    if hiHit15
+        hiAny15 += 1
+    if loHit15
+        loAny15 += 1
+    if hiHit15 and loHit15
+        both15 += 1
+        either15 += 1
+    else if hiHit15
+        hiOnly15 += 1
+        either15 += 1
+    else if loHit15
+        loOnly15 += 1
+        either15 += 1
+    else
+        neither15 += 1
+
+    if hiHit30
+        hiAny30 += 1
+    if loHit30
+        loAny30 += 1
+    if hiHit30 and loHit30
+        both30 += 1
+        either30 += 1
+    else if hiHit30
+        hiOnly30 += 1
+        either30 += 1
+    else if loHit30
+        loOnly30 += 1
+        either30 += 1
+    else
+        neither30 += 1
+
+    if hiHit45
+        hiAny45 += 1
+    if loHit45
+        loAny45 += 1
+    if hiHit45 and loHit45
+        both45 += 1
+        either45 += 1
+    else if hiHit45
+        hiOnly45 += 1
+        either45 += 1
+    else if loHit45
+        loOnly45 += 1
+        either45 += 1
+    else
+        neither45 += 1
+
+    d = openDow
+    if d >= 2 and d <= 6
+        array.set(dD, d, array.get(dD, d) + 1)
+
+        if hiHit15 and loHit15
+            array.set(dB15, d, array.get(dB15, d) + 1)
+            array.set(dE15, d, array.get(dE15, d) + 1)
+        else if hiHit15
+            array.set(dH15, d, array.get(dH15, d) + 1)
+            array.set(dE15, d, array.get(dE15, d) + 1)
+        else if loHit15
+            array.set(dL15, d, array.get(dL15, d) + 1)
+            array.set(dE15, d, array.get(dE15, d) + 1)
+        else
+            array.set(dN15, d, array.get(dN15, d) + 1)
+
+        if hiHit30 and loHit30
+            array.set(dB30, d, array.get(dB30, d) + 1)
+            array.set(dE30, d, array.get(dE30, d) + 1)
+        else if hiHit30
+            array.set(dH30, d, array.get(dH30, d) + 1)
+            array.set(dE30, d, array.get(dE30, d) + 1)
+        else if loHit30
+            array.set(dL30, d, array.get(dL30, d) + 1)
+            array.set(dE30, d, array.get(dE30, d) + 1)
+        else
+            array.set(dN30, d, array.get(dN30, d) + 1)
+
+        if hiHit45 and loHit45
+            array.set(dB45, d, array.get(dB45, d) + 1)
+            array.set(dE45, d, array.get(dE45, d) + 1)
+        else if hiHit45
+            array.set(dH45, d, array.get(dH45, d) + 1)
+            array.set(dE45, d, array.get(dE45, d) + 1)
+        else if loHit45
+            array.set(dL45, d, array.get(dL45, d) + 1)
+            array.set(dE45, d, array.get(dE45, d) + 1)
+        else
+            array.set(dN45, d, array.get(dN45, d) + 1)
+
+f_pct(num, den) =>
+    den > 0 ? num * 100.0 / den : 0.0
+
+var table tAgg = table.new(position.top_right, 7, 10, border_width=1)
+var table tDow = table.new(position.middle_right, 17, 7, border_width=1)
+
+if barstate.islast
+    table.cell(tAgg, 0, 0, "Aggregate",  bgcolor=color.navy, text_color=color.white)
+    table.cell(tAgg, 1, 0, "10:15 #",    bgcolor=color.navy, text_color=color.white)
+    table.cell(tAgg, 2, 0, "10:15 %",    bgcolor=color.navy, text_color=color.white)
+    table.cell(tAgg, 3, 0, "10:30 #",    bgcolor=color.navy, text_color=color.white)
+    table.cell(tAgg, 4, 0, "10:30 %",    bgcolor=color.navy, text_color=color.white)
+    table.cell(tAgg, 5, 0, "10:45 #",    bgcolor=color.navy, text_color=color.white)
+    table.cell(tAgg, 6, 0, "10:45 %",    bgcolor=color.navy, text_color=color.white)
+
+    table.cell(tAgg, 0, 1, "Total days")
+    table.cell(tAgg, 1, 1, str.tostring(totalDays))
+    table.cell(tAgg, 2, 1, "100")
+    table.cell(tAgg, 3, 1, str.tostring(totalDays))
+    table.cell(tAgg, 4, 1, "100")
+    table.cell(tAgg, 5, 1, str.tostring(totalDays))
+    table.cell(tAgg, 6, 1, "100")
+
+    table.cell(tAgg, 0, 2, "Either side")
+    table.cell(tAgg, 1, 2, str.tostring(either15))
+    table.cell(tAgg, 2, 2, str.tostring(f_pct(either15, totalDays), "#.##"))
+    table.cell(tAgg, 3, 2, str.tostring(either30))
+    table.cell(tAgg, 4, 2, str.tostring(f_pct(either30, totalDays), "#.##"))
+    table.cell(tAgg, 5, 2, str.tostring(either45))
+    table.cell(tAgg, 6, 2, str.tostring(f_pct(either45, totalDays), "#.##"))
+
+    table.cell(tAgg, 0, 3, "Both sides")
+    table.cell(tAgg, 1, 3, str.tostring(both15))
+    table.cell(tAgg, 2, 3, str.tostring(f_pct(both15, totalDays), "#.##"))
+    table.cell(tAgg, 3, 3, str.tostring(both30))
+    table.cell(tAgg, 4, 3, str.tostring(f_pct(both30, totalDays), "#.##"))
+    table.cell(tAgg, 5, 3, str.tostring(both45))
+    table.cell(tAgg, 6, 3, str.tostring(f_pct(both45, totalDays), "#.##"))
+
+    table.cell(tAgg, 0, 4, "High only")
+    table.cell(tAgg, 1, 4, str.tostring(hiOnly15))
+    table.cell(tAgg, 2, 4, str.tostring(f_pct(hiOnly15, totalDays), "#.##"))
+    table.cell(tAgg, 3, 4, str.tostring(hiOnly30))
+    table.cell(tAgg, 4, 4, str.tostring(f_pct(hiOnly30, totalDays), "#.##"))
+    table.cell(tAgg, 5, 4, str.tostring(hiOnly45))
+    table.cell(tAgg, 6, 4, str.tostring(f_pct(hiOnly45, totalDays), "#.##"))
+
+    table.cell(tAgg, 0, 5, "Low only")
+    table.cell(tAgg, 1, 5, str.tostring(loOnly15))
+    table.cell(tAgg, 2, 5, str.tostring(f_pct(loOnly15, totalDays), "#.##"))
+    table.cell(tAgg, 3, 5, str.tostring(loOnly30))
+    table.cell(tAgg, 4, 5, str.tostring(f_pct(loOnly30, totalDays), "#.##"))
+    table.cell(tAgg, 5, 5, str.tostring(loOnly45))
+    table.cell(tAgg, 6, 5, str.tostring(f_pct(loOnly45, totalDays), "#.##"))
+
+    table.cell(tAgg, 0, 6, "Neither")
+    table.cell(tAgg, 1, 6, str.tostring(neither15))
+    table.cell(tAgg, 2, 6, str.tostring(f_pct(neither15, totalDays), "#.##"))
+    table.cell(tAgg, 3, 6, str.tostring(neither30))
+    table.cell(tAgg, 4, 6, str.tostring(f_pct(neither30, totalDays), "#.##"))
+    table.cell(tAgg, 5, 6, str.tostring(neither45))
+    table.cell(tAgg, 6, 6, str.tostring(f_pct(neither45, totalDays), "#.##"))
+
+    table.cell(tAgg, 0, 7, "High touched (any)")
+    table.cell(tAgg, 1, 7, str.tostring(hiAny15))
+    table.cell(tAgg, 2, 7, str.tostring(f_pct(hiAny15, totalDays), "#.##"))
+    table.cell(tAgg, 3, 7, str.tostring(hiAny30))
+    table.cell(tAgg, 4, 7, str.tostring(f_pct(hiAny30, totalDays), "#.##"))
+    table.cell(tAgg, 5, 7, str.tostring(hiAny45))
+    table.cell(tAgg, 6, 7, str.tostring(f_pct(hiAny45, totalDays), "#.##"))
+
+    table.cell(tAgg, 0, 8, "Low touched (any)")
+    table.cell(tAgg, 1, 8, str.tostring(loAny15))
+    table.cell(tAgg, 2, 8, str.tostring(f_pct(loAny15, totalDays), "#.##"))
+    table.cell(tAgg, 3, 8, str.tostring(loAny30))
+    table.cell(tAgg, 4, 8, str.tostring(f_pct(loAny30, totalDays), "#.##"))
+    table.cell(tAgg, 5, 8, str.tostring(loAny45))
+    table.cell(tAgg, 6, 8, str.tostring(f_pct(loAny45, totalDays), "#.##"))
+
+    headers = array.from("DOW", "N", "Eit15%", "Bth15%", "Hi15", "Lo15", "Nei15", "Eit30%", "Bth30%", "Hi30", "Lo30", "Nei30", "Eit45%", "Bth45%", "Hi45", "Lo45", "Nei45")
+    for i = 0 to 16
+        table.cell(tDow, i, 0, array.get(headers, i), bgcolor=color.navy, text_color=color.white)
+    dowNames = array.from("", "", "Mon", "Tue", "Wed", "Thu", "Fri")
+    for d = 2 to 6
+        n = array.get(dD, d)
+        row = d - 1
+        table.cell(tDow, 0,  row, array.get(dowNames, d))
+        table.cell(tDow, 1,  row, str.tostring(n))
+        table.cell(tDow, 2,  row, str.tostring(f_pct(array.get(dE15, d), n), "#.##"))
+        table.cell(tDow, 3,  row, str.tostring(f_pct(array.get(dB15, d), n), "#.##"))
+        table.cell(tDow, 4,  row, str.tostring(array.get(dH15, d)))
+        table.cell(tDow, 5,  row, str.tostring(array.get(dL15, d)))
+        table.cell(tDow, 6,  row, str.tostring(array.get(dN15, d)))
+        table.cell(tDow, 7,  row, str.tostring(f_pct(array.get(dE30, d), n), "#.##"))
+        table.cell(tDow, 8,  row, str.tostring(f_pct(array.get(dB30, d), n), "#.##"))
+        table.cell(tDow, 9,  row, str.tostring(array.get(dH30, d)))
+        table.cell(tDow, 10, row, str.tostring(array.get(dL30, d)))
+        table.cell(tDow, 11, row, str.tostring(array.get(dN30, d)))
+        table.cell(tDow, 12, row, str.tostring(f_pct(array.get(dE45, d), n), "#.##"))
+        table.cell(tDow, 13, row, str.tostring(f_pct(array.get(dB45, d), n), "#.##"))
+        table.cell(tDow, 14, row, str.tostring(array.get(dH45, d)))
+        table.cell(tDow, 15, row, str.tostring(array.get(dL45, d)))
+        table.cell(tDow, 16, row, str.tostring(array.get(dN45, d)))

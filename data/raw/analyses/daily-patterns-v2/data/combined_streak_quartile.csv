@@ -1,0 +1,5 @@
+condition,n,p_green_next_day_pct
+3plus_green_AND_top_quartile_close,678,56.34
+3plus_green_AND_bot_quartile_close,12,50.00
+3plus_red_AND_top_quartile_close,11,54.55
+3plus_red_AND_bot_quartile_close,345,58.26

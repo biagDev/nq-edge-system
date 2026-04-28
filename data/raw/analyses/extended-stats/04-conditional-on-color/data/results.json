@@ -1,0 +1,18 @@
+{
+  "theme": "9:30 candle retest rates split by candle color (green vs red)",
+  "symbol": "CME_MINI:NQ1!",
+  "method": "Subject = 9:30-9:45 candle. Classify by close vs open: green if close > open, red if close < open, doji excluded. Then compute hit rates of H/L during 9:45-10:00 (by 10:00) and 9:45-10:15 (by 10:15).",
+  "sample_size_days": { "green": 119, "red": 111, "doji_excluded": 2 },
+  "as_of_date": "2026-04-26",
+
+  "after_green_9_30": {
+    "by_10_00": { "either_pct": 89.92, "both_pct": 5.04,  "high_any_pct": 73.95, "low_any_pct": 21.01 },
+    "by_10_15": { "either_pct": 98.32, "both_pct": 14.29, "high_any_pct": 78.99, "low_any_pct": 33.61 }
+  },
+  "after_red_9_30": {
+    "by_10_00": { "either_pct": 90.99, "both_pct": 7.21,  "high_any_pct": 24.32, "low_any_pct": 73.87 },
+    "by_10_15": { "either_pct": 95.50, "both_pct": 18.02, "high_any_pct": 36.04, "low_any_pct": 77.48 }
+  },
+
+  "key_finding": "Strong directional asymmetry. After a green 9:30, the HIGH gets retested 74% of the time vs only 21% for the low. After a red 9:30, the LOW gets retested 74% vs 24% for the high. The candle's close direction is a near-mirror predictor of which side gets retested first."
+}

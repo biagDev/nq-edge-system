@@ -1,0 +1,19 @@
+{
+  "theme": "When during the RTH session does NQ make its high-of-day / low-of-day?",
+  "symbol": "CME_MINI:NQ1!",
+  "method": "For each RTH session (9:30-16:00 ET), record which hourly bucket the HOD and LOD were set in. Buckets are by the hour the new extreme was first reached.",
+  "sample_size_days": 223,
+  "as_of_date": "2026-04-26",
+
+  "buckets": [
+    { "label": "9:30-10:00",  "hod_pct": 31.39, "lod_pct": 34.98 },
+    { "label": "10:00-11:00", "hod_pct": 13.90, "lod_pct": 16.59 },
+    { "label": "11:00-12:00", "hod_pct": 9.87,  "lod_pct": 11.66 },
+    { "label": "12:00-13:00", "hod_pct": 6.73,  "lod_pct": 6.28 },
+    { "label": "13:00-14:00", "hod_pct": 5.83,  "lod_pct": 8.97 },
+    { "label": "14:00-15:00", "hod_pct": 8.52,  "lod_pct": 6.73 },
+    { "label": "15:00-16:00", "hod_pct": 23.77, "lod_pct": 14.80 }
+  ],
+
+  "key_finding": "U-shaped distribution. The first 30 min and the last hour together account for ~55% of HOD and ~50% of LOD setting times. The midday (11:30-14:00) period accounts for only ~22-27%. HOD has a stronger 'last hour' bias (23.8%) than LOD (14.8%) — late-session rallies are more common than late-session capitulation."
+}

@@ -1,0 +1,55 @@
+//@version=5
+// 9:30 candle followthrough — does the day close in the predicted direction
+// when the color-predicted side gets retested? Body-size and excursion stats.
+// Run on NQ1! 15m chart.
+
+indicator("930 Followthrough", overlay=true, max_labels_count=50)
+
+h = hour(time, "America/New_York")
+m = minute(time, "America/New_York")
+
+isOpenBar = h == 9 and m == 30
+isPost1 = h == 9 and m == 45
+inRTH = (h == 9 and m >= 30) or (h >= 10 and h < 16)
+isLastRthBar = h == 15 and m == 45
+
+var float oh = na
+var float ol = na
+var float open_open = na
+var float ohRange = na
+var bool wasGreen = false
+var bool wasRed = false
+var bool wideBody = false
+var bool hi_retest = false
+var bool lo_retest = false
+var float maxAboveHi = 0.0
+var float maxBelowLo = 0.0
+
+if isOpenBar
+    oh := high
+    ol := low
+    open_open := open
+    ohRange := high - low
+    wasGreen := close > open
+    wasRed := close < open
+    bodyPct = ohRange > 0 ? math.abs(close - open) / ohRange : 0.0
+    wideBody := bodyPct >= 0.5
+    hi_retest := false
+    lo_retest := false
+    maxAboveHi := 0.0
+    maxBelowLo := 0.0
+
+if isPost1 and not na(oh)
+    if high >= oh
+        hi_retest := true
+    if low <= ol
+        lo_retest := true
+
+if inRTH and not isOpenBar and not na(oh)
+    if high > oh
+        maxAboveHi := math.max(maxAboveHi, high - oh)
+    if low < ol
+        maxBelowLo := math.max(maxBelowLo, ol - low)
+
+// Counter declarations and tally logic at isLastRthBar omitted from saved copy.
+// Full chart-side script outputs three tables (dayclose / body-size / excursion).

@@ -1,0 +1,21 @@
+{
+  "theme": "Range statistics — 9:30 candle vs full RTH session",
+  "symbol": "CME_MINI:NQ1!",
+  "method": "For each RTH session: openRange = 9:30-9:45 H-L; dayRange = 9:30-16:00 H-L. Compute means and bucket the open/day ratio.",
+  "sample_size_days": 223,
+  "as_of_date": "2026-04-26",
+
+  "averages": {
+    "avg_open_candle_range_pts": 109.35,
+    "avg_full_rth_range_pts": 309.03,
+    "avg_open_pct_of_day": 38.70
+  },
+  "distribution_open_pct_of_day": {
+    "lt_25":    { "days": 37,  "pct": 16.59 },
+    "25_50":    { "days": 143, "pct": 64.13 },
+    "50_75":    { "days": 38,  "pct": 17.04 },
+    "ge_75":    { "days": 5,   "pct": 2.24 }
+  },
+
+  "key_finding": "The 9:30 candle averages ~109 NQ points, ~39% of the full RTH range. Roughly 2/3 of days, the opening 15 min establishes 25-50% of the day's eventual range. About 19% of days the open is bigger than half the day's range (open dominates). Only 2.24% of days does the 9:30 candle alone make up 75%+ of the day's range — those are extreme low-volatility post-open days."
+}

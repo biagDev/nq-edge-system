@@ -1,0 +1,50 @@
+{
+  "theme": "9:30 candle followthrough — when the predicted side gets retested, does the day close in that direction?",
+  "symbol": "CME_MINI:NQ1!",
+  "timeframe": "15m",
+  "sample_size_days": 232,
+  "as_of_date": "2026-04-26",
+  "builds_on": "analyses/extended-stats/04-conditional-on-color (which established that green 9:30 -> 74% high retest, red 9:30 -> 74% low retest)",
+
+  "table_1_color_x_retest_x_dayclose": {
+    "description": "Given the 9:30 candle's color AND which side got retested by 10:00, does today close in the predicted direction (green day after green 9:30, red day after red 9:30)?",
+    "rows": [
+      { "setup": "Green 9:30 + high retests by 10:00",  "n": 85, "p_day_green_pct": 71.76, "reading": "Strong continuation — when the high gets retested on a green-9:30 day, today closes green ~72% of the time." },
+      { "setup": "Green 9:30 + low retests by 10:00",   "n": 25, "p_day_green_pct": 52.00, "reading": "When the wrong side retests (low on a green day), today is essentially a coin flip." },
+      { "setup": "Red 9:30 + low retests by 10:00",     "n": 80, "p_day_red_pct":   70.00, "reading": "Mirror of green case — strong continuation. Red-9:30 + low retest -> today closes red ~70%." },
+      { "setup": "Red 9:30 + high retests by 10:00",    "n": 25, "p_day_red_pct":   40.00, "reading": "Wrong-side retest. No edge." }
+    ]
+  },
+
+  "table_2_body_size_split": {
+    "description": "Same setups split by 9:30 body size: 'wide body' = body is >=50% of the candle's range; 'narrow body' = <50%.",
+    "rows": [
+      { "setup": "Green 9:30 + hi retest, WIDE body",   "n": 39, "p_day_green_pct": 76.92, "reading": "Wide-body green 9:30 + high retest is the strongest bullish setup we've measured." },
+      { "setup": "Green 9:30 + hi retest, NARROW body", "n": 46, "p_day_green_pct": 67.39, "reading": "Still bullish but ~10pp weaker than wide-body version." },
+      { "setup": "Red 9:30 + lo retest, WIDE body",     "n": 49, "p_day_red_pct":   79.59, "reading": "Strongest bearish setup. Wide-body red + low retest -> today closes red ~80%." },
+      { "setup": "Red 9:30 + lo retest, NARROW body",   "n": 31, "p_day_red_pct":   54.84, "reading": "Big drop-off. Narrow-body red is much weaker than wide-body version." }
+    ]
+  },
+
+  "table_3_excursion_past_high": {
+    "description": "On Green 9:30 + high retest days only: how far does price travel past the 9:30 high during the rest of the session, expressed as % of the 9:30 candle's range?",
+    "n": 85,
+    "buckets": [
+      { "range": "<= 25% of 9:30 range",    "days": 11, "pct": 12.94 },
+      { "range": "25-50%",                  "days": 5,  "pct": 5.88 },
+      { "range": "50-100%",                 "days": 27, "pct": 31.76 },
+      { "range": "100-200% (1-2x range)",   "days": 27, "pct": 31.76 },
+      { "range": "200%+ (>2x range)",       "days": 15, "pct": 17.65 }
+    ],
+    "mean_excursion_pct_of_9_30_range": 120.72,
+    "interpretation": "Strong followthrough. ~81% of green-9:30+hi-retest days extend MORE than 50% of the 9:30 range past the high. Mean follow-through is 1.21x the 9:30 range. About 17.6% of days, price extends more than 2x the 9:30 range past the high — large directional moves are common."
+  },
+
+  "key_findings": {
+    "1": "The 'wrong side' retest (green 9:30 + low retest, or red 9:30 + high retest) destroys the directional edge from extended-stats #4. Color predicts WHICH side gets retested first, but the day's close direction depends on which side ACTUALLY gets retested.",
+    "2": "Wide-body 9:30 candles produce ~10pp stronger continuation than narrow-body. Red-side asymmetry is bigger (80% vs 55%) than green-side (77% vs 67%).",
+    "3": "When the directional setup works, follow-through is large. Mean excursion past the 9:30 high on green+hiret days is ~1.2x the 9:30 range itself. Almost half (49.4%) of green+hiret days extend more than 1x the range past the high."
+  },
+
+  "sample_size_caveat": "232 days for the base sample. Sub-buckets (n=25-49) have wider confidence intervals (~±10pp). The 71% / 70% headline rates are reliable to ~±5pp. Body-size sub-splits should be treated as directional, not precise."
+}

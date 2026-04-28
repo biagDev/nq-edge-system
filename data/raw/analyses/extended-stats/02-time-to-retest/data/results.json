@@ -1,0 +1,27 @@
+{
+  "theme": "Time-to-retest distribution for the 9:30-9:45 candle",
+  "symbol": "CME_MINI:NQ1!",
+  "method": "For each 9:30-9:45 candle, count 15m bars from 9:45 until first wick-back to H or L. ALL counters (per-bucket and totalDays) committed at the same bar (15:45 RTH close) for denominator consistency.",
+  "sample_size_days": 223,
+  "as_of_date": "2026-04-26",
+  "version": "v2 (corrected denominator bug from v1)",
+  "v1_bug_note": "Original v1 results had per-bucket counters firing during forward bars but totalDays gated at 15:45, producing percentages inflated by ~3pp because bucket sums (232) exceeded totalDays (223). v2 fix: per-day flag captured during forward bars, all counters committed together at 15:45.",
+
+  "buckets": [
+    { "bars": "1",     "minutes": "0-15",    "days": 203, "pct": 91.03 },
+    { "bars": "2",     "minutes": "15-30",   "days": 15,  "pct": 6.73 },
+    { "bars": "3",     "minutes": "30-45",   "days": 3,   "pct": 1.35 },
+    { "bars": "4",     "minutes": "45-60",   "days": 2,   "pct": 0.90 },
+    { "bars": "5-8",   "minutes": "60-120",  "days": 0,   "pct": 0.00 },
+    { "bars": "9-16",  "minutes": "120-240", "days": 0,   "pct": 0.00 },
+    { "bars": "17+",   "minutes": "240+",    "days": 0,   "pct": 0.00 },
+    { "bars": "never", "minutes": "—",       "days": 0,   "pct": 0.00 }
+  ],
+
+  "verification": "Sum of buckets (203+15+3+2+0+0+0+0) = 223 = totalDays ✓",
+
+  "summary": {
+    "mean_time_to_retest_minutes_conditional": 16.82,
+    "interpretation": "91% of 9:30 candles get wicked back to within the very next 15-min bar (9:45-10:00). Mean time to retest, conditional on a hit happening, is ~17 minutes."
+  }
+}
