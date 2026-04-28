@@ -11,9 +11,9 @@ RISK_PER_TRADE_FRAC = 0.005      # 0.5% of equity per trade
 AGGREGATE_RISK_CAP_FRAC = 0.015  # 1.5% concurrent risk cap (informational)
 VOL_TARGET_ANNUAL = 0.15
 
-TICK_SIZE = 0.25                 # NQ tick
-DOLLAR_PER_POINT = 20.0          # full NQ
-COMMISSION_RT = 4.0              # USD per contract round-trip
+TICK_SIZE = 0.25                 # NQ tick (same for NQ and MNQ)
+DOLLAR_PER_POINT = 2.0           # MNQ (= 1/10 of full NQ). $100k account sizes here.
+COMMISSION_RT = 1.5              # USD per MNQ contract round-trip (typical retail)
 SLIPPAGE_TICKS = 1.0             # ticks per side
 
 START_EQUITY = 100_000.0
