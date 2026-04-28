@@ -1,0 +1,114 @@
+//@version=6
+// =============================================================================
+// NQ-Edge-System — Daily NR7 Expansion Breakout
+// =============================================================================
+//
+// Daily-timeframe primary strategy from the Phase-5 spec, encoded in Pine.
+// Source signal: E1c (`daily-patterns-v1` stat 3): NR7 day -> 83.5%
+// next-day range expansion (n=1044, regime-stable per E2's 200MA split).
+//
+// Construction:
+//   * Setup at close of day t: today's range == min(last 7 daily ranges).
+//   * Trigger on day t+1: break of prior day's high (long) or low (short).
+//   * Stop: opposite extreme of the NR7 day (structural).
+//   * Target: 1.68 x NR7 range past the trigger (empirical mean expansion
+//             ratio from the source — note: the Python backtest found this
+//             too far; the sensitivity-grid winner was no fixed target +
+//             exit at session close. This variant is offered via `useTarget`).
+//   * One-shot: cancel on day t+2 if not triggered.
+//
+// IMPORTANT FINDING from `analysis/06_backtest_results.md`:
+//   The daily-only operationalization of this signal does NOT survive
+//   realistic friction (PF 0.96 at best, expectancy +0.017R, total P&L
+//   essentially noise over 21 years). It is included here to mirror the
+//   spec, but the carry-forward `nq_edge_intraday.pine` is the
+//   higher-conviction live candidate.
+//
+// Run on `CME_MINI:NQ1!`, 1D chart.
+// =============================================================================
+
+strategy("NQ Edge — NR7 Daily Breakout",
+     overlay              = true,
+     initial_capital      = 100000,
+     default_qty_type     = strategy.fixed,
+     default_qty_value    = 1,
+     commission_type      = strategy.commission.cash_per_contract,
+     commission_value     = 1.5,
+     slippage             = 1,
+     pyramiding           = 0,
+     calc_on_every_tick   = false,
+     process_orders_on_close = false)
+
+useTarget = input.bool(true, "Use 1.68x target (off = exit at close)")
+tgtMult   = input.float(1.68, "Target = N x NR7 range past entry",
+     minval=0.5, step=0.05)
+ma200Filter = input.bool(false, "Long-only above 200 SMA / short-only below")
+
+// ---------------------------------------------------------------------------
+// NR7 detection on day t (the bar that just closed)
+// ---------------------------------------------------------------------------
+rngT = high - low
+rngMin7 = ta.lowest(rngT, 7)
+isNR7   = rngT == rngMin7 and rngT > 0
+
+// 200-day SMA regime filter
+ma200 = ta.sma(close, 200)
+above = close > ma200
+below = close < ma200
+
+// ---------------------------------------------------------------------------
+// Track NR7-day levels for use on day t+1
+// ---------------------------------------------------------------------------
+var float nr7H = na
+var float nr7L = na
+var float nr7R = na
+var bool  liveSetup = false
+var bool  filledToday = false
+
+// On the bar that completes (this bar t), if NR7, arm setup for next bar.
+if isNR7
+    nr7H := high
+    nr7L := low
+    nr7R := high - low
+    liveSetup := true
+
+// On bar t+1 (next bar), place stop orders at NR7 H+tick / L-tick.
+canLong  = liveSetup and not filledToday and (not ma200Filter or above)
+canShort = liveSetup and not filledToday and (not ma200Filter or below)
+
+if canLong
+    strategy.entry("L", strategy.long, stop=nr7H + syminfo.mintick)
+    if useTarget
+        strategy.exit("LX", "L", stop=nr7L, limit=nr7H + tgtMult * nr7R)
+    else
+        strategy.exit("LX", "L", stop=nr7L)        // no target; engine will close on its own
+if canShort
+    strategy.entry("S", strategy.short, stop=nr7L - syminfo.mintick)
+    if useTarget
+        strategy.exit("SX", "S", stop=nr7H, limit=nr7L - tgtMult * nr7R)
+    else
+        strategy.exit("SX", "S", stop=nr7H)
+
+if strategy.position_size != 0
+    filledToday := true
+
+// On the close of bar t+1 (no fixed-target mode), exit at close.
+if not useTarget and strategy.position_size != 0
+    strategy.close_all(comment="EOD")
+
+// Cancel one-shot: setup is dead after the t+1 bar.
+if liveSetup
+    if barstate.isconfirmed
+        // After this bar's close, retire the setup unless renewed by next NR7
+        liveSetup := isNR7
+        filledToday := false
+
+// ---------------------------------------------------------------------------
+// Visuals
+// ---------------------------------------------------------------------------
+plot(liveSetup ? nr7H : na, "NR7 H", color=color.green, style=plot.style_linebr, linewidth=1)
+plot(liveSetup ? nr7L : na, "NR7 L", color=color.red,   style=plot.style_linebr, linewidth=1)
+plot(ma200, "200 SMA", color=color.gray, linewidth=1)
+bgcolor(isNR7 ? color.new(color.orange, 85) : na, title="NR7 day")
+plotshape(isNR7, "NR7", style=shape.diamond, location=location.belowbar,
+     color=color.orange, size=size.tiny)

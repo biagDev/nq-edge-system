@@ -1,0 +1,148 @@
+//@version=6
+// =============================================================================
+// NQ-Edge-System — Intraday 9:30 Color Continuation Breakout
+// =============================================================================
+//
+// This is the carry-forward intraday strategy from the Phase-5 spec. It
+// implements the strongest empirical signal in the source repo:
+//
+//   D4 (`extended-stats/04-conditional-on-color`):
+//     After a green 9:30 candle, the high gets retested at 73.95% (n=119).
+//     After a red   9:30 candle, the low  gets retested at 73.87% (n=111).
+//     Lift over the opposite-color base rate: ~+50 percentage points.
+//
+//   C1 (`930-followthrough`):
+//     When the predicted side gets retested, the day closes in that
+//     direction 71-72% (avg, n=85/80) -> 77-80% (wide-body subset, n=39/49).
+//
+//   D2 (`extended-stats/02-time-to-retest`):
+//     91% of retests happen within the first 15-min bar after 9:30 closes.
+//
+// Construction:
+//   * Setup at close of 9:30-9:45 NY candle: classify color (& body width).
+//   * Entry: stop-buy at 9:30-high + 1 tick on a green setup;
+//            stop-sell at 9:30-low  - 1 tick on a red setup.
+//   * Stop:   opposite extreme of the 9:30 candle (structural).
+//   * Target: 1.5 x 9:30 range past the entry trigger (sensitivity-grid winner).
+//   * Cancel pending entry if not triggered within ~1 hour.
+//   * Force-flat at 16:00 ET (last RTH 15m bar).
+//   * One trade per session.
+//
+// Position sizing left at 1 contract (use TV's "% of equity" or "fixed risk"
+// in the strategy properties dialog if you want vol-targeting).
+//
+// Run on `CME_MINI:NQ1!`, 15-minute chart.
+// =============================================================================
+
+strategy("NQ Edge — 9:30 Color Breakout",
+     overlay              = true,
+     initial_capital      = 100000,
+     default_qty_type     = strategy.fixed,
+     default_qty_value    = 1,
+     commission_type      = strategy.commission.cash_per_contract,
+     commission_value     = 1.5,
+     slippage             = 1,
+     pyramiding           = 0,
+     calc_on_every_tick   = false,
+     process_orders_on_close = false)
+
+// ---------------------------------------------------------------------------
+// Inputs
+// ---------------------------------------------------------------------------
+useWide   = input.bool(false, "Wide-body 9:30 only (body >= 50% of range)")
+tgtMult   = input.float(1.5, "Target = N x 9:30 range past entry",
+     minval=0.25, step=0.25)
+maxBars   = input.int(4, "Cancel entry after N 15m bars (60min default)",
+     minval=1, maxval=12)
+useSessionString = input.bool(true, "Use NY-time session (vs hour() check)")
+
+// ---------------------------------------------------------------------------
+// Session detection — two ways for robustness
+// ---------------------------------------------------------------------------
+//   (a) NY hour/minute on the bar's open time. Reliable across feeds.
+//   (b) TradingView's `time(timeframe, session, tz)` helper. Cleaner but
+//       dependent on the chart's exchange tz alignment.
+// We use (a) by default (toggle at the input).
+ny_h = hour(time, "America/New_York")
+ny_m = minute(time, "America/New_York")
+is930a   = ny_h == 9  and ny_m == 30
+isEntryA = ny_h == 9  and ny_m == 45
+isCloseA = ny_h == 15 and ny_m == 45
+
+inSess  = not na(time("", "0930-1600", "America/New_York"))
+firstB  = inSess and not inSess[1]
+lastB   = inSess and not inSess[1] ? false : (not inSess and inSess[1])
+secondB = inSess and not firstB and firstB[1]
+
+is930   = useSessionString ? firstB   : is930a
+isEntry = useSessionString ? secondB  : isEntryA
+isClose = useSessionString ? lastB    : isCloseA
+
+// ---------------------------------------------------------------------------
+// 9:30 candle state
+// ---------------------------------------------------------------------------
+var float h930  = na
+var float l930  = na
+var float o930  = na
+var float c930  = na
+var bool  fired = false
+var int   armBar = na
+
+if is930
+    h930   := high
+    l930   := low
+    o930   := open
+    c930   := close
+    fired  := false
+    armBar := bar_index
+
+// ---------------------------------------------------------------------------
+// Signal logic
+// ---------------------------------------------------------------------------
+isGreen  = c930 > o930
+range930 = h930 - l930
+body930  = math.abs(c930 - o930)
+wide     = body930 >= 0.5 * range930
+passF    = not useWide or wide
+barsSinc = bar_index - armBar
+inEnt    = not na(armBar) and barsSinc >= 1 and barsSinc <= maxBars
+canEnter = inEnt and not fired and not na(h930) and passF
+
+if canEnter and isGreen
+    strategy.entry("L", strategy.long,  stop=h930 + syminfo.mintick)
+    strategy.exit("LX", "L",
+         stop  = l930,
+         limit = h930 + tgtMult * range930)
+    fired := true
+if canEnter and not isGreen
+    strategy.entry("S", strategy.short, stop=l930 - syminfo.mintick)
+    strategy.exit("SX", "S",
+         stop  = h930,
+         limit = l930 - tgtMult * range930)
+    fired := true
+
+// Cancel any unfilled entry once the entry window closes
+if not na(armBar) and barsSinc > maxBars and strategy.position_size == 0
+    strategy.cancel("L")
+    strategy.cancel("S")
+
+// EOD flat
+if isClose
+    strategy.cancel_all()
+    strategy.close_all(comment="EOD")
+
+// ---------------------------------------------------------------------------
+// Visualization
+// ---------------------------------------------------------------------------
+plot(not na(h930) and not fired ? h930 : na, "9:30 H",
+     color=color.new(color.green, 0), style=plot.style_linebr, linewidth=1)
+plot(not na(l930) and not fired ? l930 : na, "9:30 L",
+     color=color.new(color.red, 0),   style=plot.style_linebr, linewidth=1)
+bgcolor(is930   ? color.new(color.yellow, 88) : na, title="9:30 bar")
+bgcolor(isEntry ? color.new(color.aqua, 95) : na,   title="Entry bar")
+plotshape(is930   and isGreen ? high : na, "Green 9:30",
+     style=shape.triangleup,   location=location.abovebar,
+     color=color.green, size=size.tiny)
+plotshape(is930   and not isGreen ? low : na, "Red 9:30",
+     style=shape.triangledown, location=location.belowbar,
+     color=color.red,   size=size.tiny)
